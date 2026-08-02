@@ -1,4 +1,5 @@
-import { ErrorMessage, Formik } from 'formik';
+import { ErrorMessage, Field, Form, Formik } from 'formik';
+import { useId } from 'react';
 
 import { NoteFormSchema } from '../../schema';
 import type { Note } from '../../types/note.ts';
@@ -9,6 +10,8 @@ interface NoteFormProps {
 }
 
 const NoteForm = ({ onClose }: NoteFormProps) => {
+  const fieldId = useId();
+
   const handleSubmit = () => {};
 
   const initialValue: Note = {
@@ -23,17 +26,23 @@ const NoteForm = ({ onClose }: NoteFormProps) => {
       validationSchema={NoteFormSchema}
       onSubmit={handleSubmit}
     >
-      <form className={css.form}>
+      <Form className={css.form}>
         <div className={css.formGroup}>
-          <label htmlFor="title">Title</label>
-          <input id="title" type="text" name="title" className={css.input} />
+          <label htmlFor={`${fieldId}-title}`}>Title</label>
+          <Field
+            id={`${fieldId}-title}`}
+            type="text"
+            name="title"
+            className={css.input}
+          />
           <ErrorMessage name="title" component="span" className={css.error} />
         </div>
 
         <div className={css.formGroup}>
-          <label htmlFor="content">Content</label>
-          <textarea
-            id="content"
+          <label htmlFor={`${fieldId}-content}`}>Content</label>
+          <Field
+            id={`${fieldId}-content}`}
+            as="textarea"
             name="content"
             rows={8}
             className={css.textarea}
@@ -42,14 +51,19 @@ const NoteForm = ({ onClose }: NoteFormProps) => {
         </div>
 
         <div className={css.formGroup}>
-          <label htmlFor="tag">Tag</label>
-          <select id="tag" name="tag" className={css.select}>
+          <label htmlFor={`${fieldId}-tag}`}>Tag</label>
+          <Field
+            as="select"
+            id={`${fieldId}-tag}`}
+            name="tag"
+            className={css.select}
+          >
             <option value="Todo">Todo</option>
             <option value="Work">Work</option>
             <option value="Personal">Personal</option>
             <option value="Meeting">Meeting</option>
             <option value="Shopping">Shopping</option>
-          </select>
+          </Field>
           <ErrorMessage name="tag" component="span" className={css.error} />
         </div>
 
@@ -62,7 +76,7 @@ const NoteForm = ({ onClose }: NoteFormProps) => {
             Create note
           </button>
         </div>
-      </form>
+      </Form>
     </Formik>
   );
 };
