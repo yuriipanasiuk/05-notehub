@@ -1,35 +1,32 @@
 import { keepPreviousData, useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
-import { useDebounce } from 'use-debounce';
+import { useDebouncedCallback } from 'use-debounce';
 
+import { fetchNotes } from '../../services/noteService.ts';
 import Modal from '../Modal';
 import NoteForm from '../NoteForm';
+import NoteList from '../NoteList';
 import Pagination from '../Pagination';
 import SearchBox from '../SearchBox';
 import css from './App.module.css';
-import { fetchNotes } from '../../services/noteService.ts';
-import NoteList from '../NoteList';
 
 function App() {
   const [page, setPage] = useState<number>(1);
   const [search, setSearch] = useState<string>('');
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
 
-  const [debouncedSearch] = useDebounce(search, 1000);
-
   const { data } = useQuery({
-    queryKey: ['note', debouncedSearch, page],
-    queryFn: () => fetchNotes(page, debouncedSearch),
-    // enabled: debouncedSearch !== '',
+    queryKey: ['note', search, page],
+    queryFn: () => fetchNotes(page, search),
     placeholderData: keepPreviousData,
   });
 
   const handleCloseModal = () => setIsModalOpen(false);
 
-  const handleSearch = (query: string) => {
+  const handleSearch = useDebouncedCallback((query: string) => {
     setPage(1);
     setSearch(query);
-  };
+  }, 350);
 
   const totalPages = data?.totalPages ?? 0;
 
