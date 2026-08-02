@@ -14,7 +14,7 @@ const NoteForm = ({ onClose }: NoteFormProps) => {
 
   const handleSubmit = () => {};
 
-  const initialValue: Note = {
+  const initialValue: Omit<Note, 'id'> = {
     title: '',
     content: '',
     tag: 'Todo',

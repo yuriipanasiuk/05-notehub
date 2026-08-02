@@ -23,4 +23,4 @@ export const fetchNotes = async (
 
 export const createNote = async () => {};
 
-export const deleteNote = (id: string) => {};
+export const deleteNote = () => {};
