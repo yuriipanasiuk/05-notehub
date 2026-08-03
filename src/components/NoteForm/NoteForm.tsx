@@ -1,11 +1,10 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { ErrorMessage, Field, Form, Formik, type FormikHelpers } from 'formik';
 import { useId } from 'react';
-import toast from 'react-hot-toast';
 
+import { useMutationWithToast } from '../../hooks';
 import { NoteFormSchema } from '../../schema';
 import { createNote } from '../../services/noteService.ts';
-import type { NoteValue } from '../../types/note.ts';
+import type { NewNote } from '../../types/note.ts';
 import css from './NoteForm.module.css';
 
 interface NoteFormProps {
@@ -14,31 +13,21 @@ interface NoteFormProps {
 
 const NoteForm = ({ onClose }: NoteFormProps) => {
   const fieldId = useId();
-  const queryClient = useQueryClient();
 
-  const { mutate } = useMutation({
+  const { mutate } = useMutationWithToast({
     mutationFn: createNote,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['notes'] });
-      toast.success('Note created successfully');
-      onClose();
-    },
-    onError: () => {
-      toast.error("toast.error('Failed to create note')");
-      onClose();
-    },
+    onSuccess: onClose,
+    successMessage: 'Note created successfully',
+    errorMessage: 'Failed to create note',
   });
 
-  const initialValue: NoteValue = {
+  const initialValue: NewNote = {
     title: '',
     content: '',
     tag: 'Todo',
   };
 
-  const handleSubmit = (
-    values: NoteValue,
-    actions: FormikHelpers<NoteValue>
-  ) => {
+  const handleSubmit = (values: NewNote, actions: FormikHelpers<NewNote>) => {
     mutate(values);
     actions.resetForm();
   };

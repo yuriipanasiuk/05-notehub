@@ -1,4 +1,4 @@
-import type { Note, NoteValue } from '../types/note.ts';
+import type { NewNote, Note } from '../types/note.ts';
 import { api } from './instance.ts';
 
 interface FetchNotesResponse {
@@ -21,7 +21,7 @@ export const fetchNotes = async (
   return data;
 };
 
-export const createNote = async (body: NoteValue): Promise<Note> => {
+export const createNote = async (body: NewNote): Promise<Note> => {
   const { data } = await api.post<Note>('/notes', body);
 
   return data;

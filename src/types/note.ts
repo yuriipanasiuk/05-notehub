@@ -7,4 +7,4 @@ export interface Note {
   tag: NoteTag;
 }
 
-export type NoteValue = Omit<Note, 'id'>;
+export type NewNote = Omit<Note, 'id'>;

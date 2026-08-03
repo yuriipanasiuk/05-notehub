@@ -1,6 +1,4 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import toast from 'react-hot-toast';
-
+import { useMutationWithToast } from '../../hooks';
 import { deleteNote } from '../../services/noteService.ts';
 import type { Note } from '../../types/note.ts';
 import css from './NoteList.module.css';
@@ -10,17 +8,10 @@ interface NoteListProps {
 }
 
 const NoteList = ({ notes }: NoteListProps) => {
-  const queryClient = useQueryClient();
-
-  const { mutate } = useMutation({
+  const { mutate } = useMutationWithToast({
     mutationFn: deleteNote,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['notes'] });
-      toast.success('Note deleted successfully');
-    },
-    onError: () => {
-      toast.error('Failed to delete note');
-    },
+    successMessage: 'Note deleted successfully',
+    errorMessage: 'Failed to delete note',
   });
 
   return (
