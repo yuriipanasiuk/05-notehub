@@ -1,8 +1,11 @@
-import { ErrorMessage, Field, Form, Formik } from 'formik';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { ErrorMessage, Field, Form, Formik, type FormikHelpers } from 'formik';
 import { useId } from 'react';
+import toast from 'react-hot-toast';
 
 import { NoteFormSchema } from '../../schema';
-import type { Note } from '../../types/note.ts';
+import { createNote } from '../../services/noteService.ts';
+import type { NoteValue } from '../../types/note.ts';
 import css from './NoteForm.module.css';
 
 interface NoteFormProps {
@@ -11,13 +14,33 @@ interface NoteFormProps {
 
 const NoteForm = ({ onClose }: NoteFormProps) => {
   const fieldId = useId();
+  const queryClient = useQueryClient();
 
-  const handleSubmit = () => {};
+  const { mutate } = useMutation({
+    mutationFn: createNote,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['notes'] });
+      toast.success('Note created successfully');
+      onClose();
+    },
+    onError: () => {
+      toast.error("toast.error('Failed to create note')");
+      onClose();
+    },
+  });
 
-  const initialValue: Omit<Note, 'id'> = {
+  const initialValue: NoteValue = {
     title: '',
     content: '',
     tag: 'Todo',
+  };
+
+  const handleSubmit = (
+    values: NoteValue,
+    actions: FormikHelpers<NoteValue>
+  ) => {
+    mutate(values);
+    actions.resetForm();
   };
 
   return (
@@ -28,7 +51,7 @@ const NoteForm = ({ onClose }: NoteFormProps) => {
     >
       <Form className={css.form}>
         <div className={css.formGroup}>
-          <label htmlFor={`${fieldId}-title}`}>Title</label>
+          <label htmlFor={`${fieldId}-title`}>Title</label>
           <Field
             id={`${fieldId}-title}`}
             type="text"
@@ -39,9 +62,9 @@ const NoteForm = ({ onClose }: NoteFormProps) => {
         </div>
 
         <div className={css.formGroup}>
-          <label htmlFor={`${fieldId}-content}`}>Content</label>
+          <label htmlFor={`${fieldId}-content`}>Content</label>
           <Field
-            id={`${fieldId}-content}`}
+            id={`${fieldId}-content`}
             as="textarea"
             name="content"
             rows={8}
@@ -51,10 +74,10 @@ const NoteForm = ({ onClose }: NoteFormProps) => {
         </div>
 
         <div className={css.formGroup}>
-          <label htmlFor={`${fieldId}-tag}`}>Tag</label>
+          <label htmlFor={`${fieldId}-tag`}>Tag</label>
           <Field
             as="select"
-            id={`${fieldId}-tag}`}
+            id={`${fieldId}-tag`}
             name="tag"
             className={css.select}
           >

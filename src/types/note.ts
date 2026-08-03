@@ -6,3 +6,5 @@ export interface Note {
   content: string;
   tag: NoteTag;
 }
+
+export type NoteValue = Omit<Note, 'id'>;

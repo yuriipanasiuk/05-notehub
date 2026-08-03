@@ -1,8 +1,12 @@
 import { keepPreviousData, useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
+import { Toaster } from 'react-hot-toast';
 import { useDebouncedCallback } from 'use-debounce';
 
 import { fetchNotes } from '../../services/noteService.ts';
+import EmptyNotes from '../EmptyNotes';
+import ErrorMessage from '../ErrorMessage';
+import Loader from '../Loader';
 import Modal from '../Modal';
 import NoteForm from '../NoteForm';
 import NoteList from '../NoteList';
@@ -15,8 +19,8 @@ function App() {
   const [search, setSearch] = useState<string>('');
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
 
-  const { data } = useQuery({
-    queryKey: ['note', search, page],
+  const { data, isLoading, isError } = useQuery({
+    queryKey: ['notes', search, page],
     queryFn: () => fetchNotes(page, search),
     placeholderData: keepPreviousData,
   });
@@ -29,6 +33,7 @@ function App() {
   }, 350);
 
   const totalPages = data?.totalPages ?? 0;
+  const notes = data?.notes ?? [];
 
   return (
     <div className={css.app}>
@@ -48,13 +53,21 @@ function App() {
         />
       )}
 
-      {data && data.notes.length > 0 && <NoteList notes={data.notes} />}
+      {isLoading && <Loader />}
+
+      {data && notes.length > 0 && <NoteList notes={notes} />}
+
+      {!isLoading && !isError && notes.length === 0 && <EmptyNotes />}
+
+      {isError && <ErrorMessage />}
 
       {isModalOpen && (
         <Modal onClose={handleCloseModal}>
           <NoteForm onClose={handleCloseModal} />
         </Modal>
       )}
+
+      <Toaster position="top-right" />
     </div>
   );
 }

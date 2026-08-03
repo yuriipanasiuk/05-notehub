@@ -1,4 +1,4 @@
-import type { Note } from '../types/note.ts';
+import type { Note, NoteValue } from '../types/note.ts';
 import { api } from './instance.ts';
 
 interface FetchNotesResponse {
@@ -21,6 +21,14 @@ export const fetchNotes = async (
   return data;
 };
 
-export const createNote = async () => {};
+export const createNote = async (body: NoteValue): Promise<Note> => {
+  const { data } = await api.post<Note>('/notes', body);
 
-export const deleteNote = () => {};
+  return data;
+};
+
+export const deleteNote = async (id: string): Promise<Note> => {
+  const { data } = await api.delete<Note>(`/notes/${id}`);
+
+  return data;
+};
