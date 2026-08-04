@@ -1,7 +1,8 @@
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { ErrorMessage, Field, Form, Formik, type FormikHelpers } from 'formik';
 import { useId } from 'react';
+import toast from 'react-hot-toast';
 
-import { useMutationWithToast } from '../../hooks';
 import { NoteFormSchema } from '../../schema';
 import { createNote } from '../../services/noteService.ts';
 import type { NewNote } from '../../types/note.ts';
@@ -13,12 +14,19 @@ interface NoteFormProps {
 
 const NoteForm = ({ onClose }: NoteFormProps) => {
   const fieldId = useId();
+  const queryClient = useQueryClient();
 
-  const { mutate } = useMutationWithToast({
+  const { mutate } = useMutation({
     mutationFn: createNote,
-    onSuccess: onClose,
-    successMessage: 'Note created successfully',
-    errorMessage: 'Failed to create note',
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['notes'] });
+      toast.success('Note created successfully');
+      onClose();
+    },
+    onError: () => {
+      toast.error('Failed to create note');
+      onClose();
+    },
   });
 
   const initialValue: NewNote = {
@@ -42,7 +50,7 @@ const NoteForm = ({ onClose }: NoteFormProps) => {
         <div className={css.formGroup}>
           <label htmlFor={`${fieldId}-title`}>Title</label>
           <Field
-            id={`${fieldId}-title}`}
+            id={`${fieldId}-title`}
             type="text"
             name="title"
             className={css.input}
